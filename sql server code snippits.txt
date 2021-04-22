@@ -1,0 +1,68 @@
+-- list global temp tables
+SELECT
+  name,
+  type,
+  type_desc,
+  create_date
+FROM tempdb.sys.tables
+WHERE name LIKE '##%'
+
+-- list only local temp tables
+SELECT
+  name,
+  type,
+  type_desc,
+  create_date
+FROM tempdb.sys.tables
+WHERE name LIKE '#%'
+AND name NOT LIKE '##%'
+
+--creates temporary table
+SELECT ProductID, 
+       SalesOrderID, 
+       OrderQty as Quantity
+  INTO #MyTempTable
+  FROM [Sales].[SalesOrderDetail]
+ WHERE ProductID = 723
+
+SELECT * 
+ FROM #MyTempTable
+
+/*2. Order the results on MyTempTable by SalesOrderID.*/
+
+ SELECT * 
+ FROM #MyTempTable
+ ORDER BY SalesOrderID
+
+ 3. Add a timestamp field called "DateRan" and upddate it to the current date.
+ 
+ ALTER TABLE #MyTempTable 
+ ADD  DateRan Timestamp 
+
+--formatting example with date and price
+
+ SELECT P.ProductID
+      , p.Name
+	  , format(ph.EndDate, 'd', 'en-us') EndDate
+	  , format( ph.ListPrice, 'C') ListPrice
+  FROM Production.Product P
+       JOIN Production.ProductListPriceHistory ph ON p.ProductId = ph.ProductId
+ WHERE Ph.ProductID = 723
+
+
+--example of a procedure that can be ran to give output.
+
+CREATE PROCEDURE PriceHistory
+AS
+SELECT Ph.ProductID,
+	  format( ph.ListPrice, 'C') ListPrice,
+	  format (Ph.StartDate, 'd', 'en-us') as StartDate,
+	  format (Ph.EndDate, 'd', 'en-us') as EndDate
+  FROM Production.ProductListPriceHistory ph  
+GO
+ 
+
+
+
+
+
